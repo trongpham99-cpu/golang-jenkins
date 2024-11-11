@@ -1,6 +1,13 @@
 pipeline {
     agent any
     stages {
+        stage('Test Docker') {
+            steps {
+                script {
+                    sh "docker --version"
+                }
+            }
+        }
         stage('Build') {
             steps {
                 script {
@@ -20,7 +27,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploying application...'
-                // Add deployment steps here if needed
+                // Thêm các bước triển khai ở đây nếu cần
             }
         }
     }
