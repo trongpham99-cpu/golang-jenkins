@@ -19,12 +19,6 @@ pipeline {
             }
         }
 
-        stage('Build with Go') {
-            steps {
-                sh 'go --version'
-            }
-        }
-
         stage('Run Docker Build') {
             steps {
                 script {
