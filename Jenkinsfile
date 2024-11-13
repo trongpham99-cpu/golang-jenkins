@@ -9,7 +9,7 @@ pipeline {
     stages {
         stage('Clone repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/trongpham99-cpu/golang-jenkins.git'
+                git branch: 'master', url: 'https://github.com/trongpham99-cpu/golang-jenkins.git'
             }
         }
 
