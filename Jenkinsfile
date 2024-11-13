@@ -4,10 +4,10 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'trongpham99/golang-jenkins'
         DOCKER_TAG = 'latest'
-        DOCKER_HUB_USERNAME = 'trong.phamtranduc@gmail.com'
-        DOCKER_HUB_PASSWORD = 'Amg3123456'
-        TELEGRAM_BOT_TOKEN = '7939301771:AAEw4T70jSq7d6JzamJJmPNmBigcExKw3Pk'
-        TELEGRAM_CHAT_ID = '-1002394833136'
+        DOCKER_HUB_USERNAME = credentials('docker-hub-username')
+        DOCKER_HUB_PASSWORD = credentials('docker-hub-password')
+        TELEGRAM_BOT_TOKEN = credentials('telegram-bot-token')
+        TELEGRAM_CHAT_ID = credentials('telegram-chat-id')
     }
 
     stages {
