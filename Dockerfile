@@ -10,7 +10,7 @@ COPY . .
 
 RUN go build -o myapp .
 
-EXPOSE 8080
+EXPOSE 3000
 
 # Command to run the application
 CMD ["./myapp"]

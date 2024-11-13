@@ -31,16 +31,23 @@ pipeline {
 
         stage('Push to Docker Hub') {
             steps {
-                withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_HUB_PASSWORD')]) {
-                    sh 'echo $DOCKER_HUB_PASSWORD | docker login -u your-dockerhub-username --password-stdin'
-                    sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'docker-hub-credentials') {
+                        docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").push()
+                    }
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Golang to DEV') {
             steps {
-                echo 'Deployment stage (customize as needed)'
+                echo 'Deploying to DEV...'
+                sh 'docker image pull trongpham99/golang-jenkins:latest'
+                sh 'docker container stop golang-jenkins || echo "this container does not exist"'
+                sh 'docker network create dev || echo "this network exists"'
+                sh 'echo y | docker container prune '
+
+                sh 'docker container run -d --rm --name server-golang -p 4000:3000 --network dev trongpham99/golang-jenkins:latest'
             }
         }
     }
