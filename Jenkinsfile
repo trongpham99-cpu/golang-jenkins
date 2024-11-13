@@ -1,45 +1,52 @@
 pipeline {
     agent any
 
-    tools {
-        go 'golang'
-    }
-
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        DOCKER_IMAGE = 'trongpham99/golang-demo-ci-cd'
-        GITHUB_CREDENTIALS = credentials('git-secret')
+        DOCKER_IMAGE = 'your-dockerhub-username/your-golang-app'
+        DOCKER_TAG = 'latest'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone repository') {
             steps {
-                echo "Checking out repo"
-                git url: 'https://github.com/trongpham99-cpu/golang-demo-ci-cd.git', branch: 'master'
+                git branch: 'main', url: 'https://github.com/trongpham99-cpu/golang-jenkins.git'
             }
         }
 
-        stage('Run Docker Build') {
+        stage('Test Docker') {
             steps {
-                script {
-                    echo "Starting Docker build"
-                    sh "docker build -t ${DOCKER_IMAGE}:${env.BUILD_ID} ."
-                    echo "Docker built successfully"
-                }
+                sh 'docker --version'
             }
         }
 
-        stage('Push to Docker Hub') {
-            steps {
-                echo "Pushing to Docker Hub"
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub') {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_ID}").push()
-                    }
-                }
-                echo "Done"
-            }
-        }
+        // stage('Build Docker Image') {
+        //     steps {
+        //         script {
+        //             docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+        //         }
+        //     }
+        // }
+
+        // stage('Run Tests') {
+        //     steps {
+        //         sh 'docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} go test ./...'
+        //     }
+        // }
+
+        // stage('Push to Docker Hub') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'docker-hub-credentials', variable: 'DOCKER_HUB_PASSWORD')]) {
+        //             sh 'echo $DOCKER_HUB_PASSWORD | docker login -u your-dockerhub-username --password-stdin'
+        //             sh "docker push ${DOCKER_IMAGE}:${DOCKER_TAG}"
+        //         }
+        //     }
+        // }
+
+        // stage('Deploy') {
+        //     steps {
+        //         echo 'Deployment stage (customize as needed)'
+        //     }
+        // }
     }
 
     post {
