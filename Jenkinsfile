@@ -50,6 +50,12 @@ pipeline {
                 sh 'docker container run -d --rm --name server-golang -p 4000:3000 --network dev trongpham99/golang-jenkins:latest'
             }
         }
+
+        stage('Deploy Golang to PROD') {
+            steps {
+                echo 'Deploying to PROD...'
+            }
+        }
     }
 
     post {
