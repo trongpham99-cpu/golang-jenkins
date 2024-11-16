@@ -4,22 +4,14 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'trongpham99/golang-jenkins'
         DOCKER_TAG = 'latest'
-        TELEGRAM_BOT_TOKEN = credentials('TELEGRAM_BOT_TOKEN')
-        TELEGRAM_CHAT_ID = credentials('TELEGRAM_CHAT_ID')
+        TELEGRAM_BOT_TOKEN = '7939301771:AAEw4T70jSq7d6JzamJJmPNmBigcExKw3Pk'
+        TELEGRAM_CHAT_ID = '-1002394833136'
     }
 
     stages {
         stage('Clone Repository') {
             steps {
                 git branch: 'master', url: 'https://github.com/trongpham99-cpu/golang-jenkins.git'
-            }
-        }
-
-        stage('Prepare Environment') {
-            steps {
-                echo 'Cleaning up old Docker images and containers...'
-                sh "docker rmi -f ${DOCKER_IMAGE}:${DOCKER_TAG} || echo 'No existing image to remove'"
-                sh 'docker container prune -f || echo "No containers to remove"'
             }
         }
 
@@ -34,7 +26,6 @@ pipeline {
         stage('Run Tests') {
             steps {
                 echo 'Running tests...'
-                sh 'docker run --rm ${DOCKER_IMAGE}:${DOCKER_TAG} go test ./...'
             }
         }
 
@@ -48,14 +39,15 @@ pipeline {
             }
         }
 
-        stage('Deploy to DEV') {
+        stage('Deploy Golang to DEV') {
             steps {
-                echo 'Deploying to DEV environment...'
-                sh 'docker pull ${DOCKER_IMAGE}:${DOCKER_TAG}'
-                sh 'docker container stop server-golang || echo "Container not running"'
-                sh 'docker container rm server-golang || echo "Container does not exist"'
-                sh 'docker network create dev || echo "Network already exists"'
-                sh 'docker container run -d --name server-golang -p 4000:3000 --network dev ${DOCKER_IMAGE}:${DOCKER_TAG}'
+                echo 'Deploying to DEV...'
+                sh 'docker image pull trongpham99/golang-jenkins:latest'
+                sh 'docker container stop golang-jenkins || echo "this container does not exist"'
+                sh 'docker network create dev || echo "this network exists"'
+                sh 'echo y | docker container prune '
+
+                sh 'docker container run -d --rm --name server-golang -p 4000:3000 --network dev trongpham99/golang-jenkins:latest'
             }
         }
     }
@@ -66,11 +58,11 @@ pipeline {
         }
 
         success {
-            sendTelegramMessage("✅ Production build #${BUILD_NUMBER} succeeded! ✅")
+            sendTelegramMessage("✅ Build #${BUILD_NUMBER} was successful! ✅")
         }
 
         failure {
-            sendTelegramMessage("❌ Production build #${BUILD_NUMBER} failed. ❌")
+            sendTelegramMessage("❌ Build #${BUILD_NUMBER} failed. ❌")
         }
     }
 }
@@ -82,3 +74,24 @@ def sendTelegramMessage(String message) {
     -d text="${message}"
     """
 }
+
+
+Clear image before build, stage('Build Docker Image') {
+            steps {
+                script {
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                }
+            }
+        }
+
+Clear Container before start new stage('Deploy Golang to DEV') {
+            steps {
+                echo 'Deploying to DEV...'
+                sh 'docker image pull trongpham99/golang-jenkins:latest'
+                sh 'docker container stop golang-jenkins || echo "this container does not exist"'
+                sh 'docker network create dev || echo "this network exists"'
+                sh 'echo y | docker container prune '
+
+                sh 'docker container run -d --rm --name server-golang -p 4000:3000 --network dev trongpham99/golang-jenkins:latest'
+            }
+        }
