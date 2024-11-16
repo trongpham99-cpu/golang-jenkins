@@ -74,24 +74,3 @@ def sendTelegramMessage(String message) {
     -d text="${message}"
     """
 }
-
-
-Clear image before build, stage('Build Docker Image') {
-            steps {
-                script {
-                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
-                }
-            }
-        }
-
-Clear Container before start new stage('Deploy Golang to DEV') {
-            steps {
-                echo 'Deploying to DEV...'
-                sh 'docker image pull trongpham99/golang-jenkins:latest'
-                sh 'docker container stop golang-jenkins || echo "this container does not exist"'
-                sh 'docker network create dev || echo "this network exists"'
-                sh 'echo y | docker container prune '
-
-                sh 'docker container run -d --rm --name server-golang -p 4000:3000 --network dev trongpham99/golang-jenkins:latest'
-            }
-        }
